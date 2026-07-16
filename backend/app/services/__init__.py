@@ -1,0 +1,43 @@
+from app.services.booking_service import BookingService
+from app.services.errors import (
+    BookingConflictError,
+    BookingNotFoundError,
+    BookingPermissionDeniedError,
+    ConflictError,
+    InvalidCancellationError,
+    InvalidRoomNumberError,
+    NotFoundError,
+    PermissionDeniedError,
+    RoomAlreadyExistsError,
+    RoomHasBookingsError,
+    RoomNotFoundError,
+    RoomSlotInUseError,
+    RoomSlotNotFoundError,
+    ServiceError,
+    SlotTemplateNotFoundError,
+    UserNotFoundError,
+    ValidationError,
+)
+from app.services.room_service import RoomService
+
+__all__ = [
+    "BookingConflictError",
+    "BookingNotFoundError",
+    "BookingPermissionDeniedError",
+    "BookingService",
+    "ConflictError",
+    "InvalidCancellationError",
+    "InvalidRoomNumberError",
+    "NotFoundError",
+    "PermissionDeniedError",
+    "RoomAlreadyExistsError",
+    "RoomHasBookingsError",
+    "RoomNotFoundError",
+    "RoomService",
+    "RoomSlotInUseError",
+    "RoomSlotNotFoundError",
+    "ServiceError",
+    "SlotTemplateNotFoundError",
+    "UserNotFoundError",
+    "ValidationError",
+]
