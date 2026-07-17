@@ -28,6 +28,9 @@ class Settings:
     db_echo: bool
     db_pool_size: int
     db_max_overflow: int
+    jwt_secret_key: str
+    jwt_algorithm: str
+    jwt_access_token_expire_minutes: int
 
 
 @lru_cache
@@ -41,4 +44,10 @@ def get_settings() -> Settings:
         db_echo=_env_bool("DB_ECHO", False),
         db_pool_size=_env_int("DB_POOL_SIZE", 10),
         db_max_overflow=_env_int("DB_MAX_OVERFLOW", 20),
+        jwt_secret_key=os.getenv(
+            "JWT_SECRET_KEY",
+            "H+?@mB3vfs}=}JW$p[-EU$r+N1Volh*h}gxnE%[*XH@",
+        ),
+        jwt_algorithm=os.getenv("JWT_ALGORITHM", "HS256"),
+        jwt_access_token_expire_minutes=_env_int("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", 30),
     )

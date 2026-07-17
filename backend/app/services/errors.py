@@ -62,6 +62,11 @@ class UserNotFoundError(NotFoundError):
         super().__init__(f"User {user_id} was not found.")
 
 
+class InvalidCredentialsError(PermissionDeniedError):
+    def __init__(self) -> None:
+        super().__init__("Invalid login or password.")
+
+
 class RoomAlreadyExistsError(ConflictError):
     def __init__(self, *, number: str) -> None:
         super().__init__(f"Room {number!r} already exists.")
