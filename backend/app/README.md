@@ -1,22 +1,19 @@
-# App Structure
+# App
 
-This package holds the application code for the booking service.
+This package contains the FastAPI application for the meeting-room booking
+service. It wires HTTP requests to service-layer use cases and keeps database
+details behind repositories.
 
-- `api/` is where the FastAPI routers, request dependencies, and response
-  wiring live.
-- `config/` holds runtime settings loaded from the environment.
-- `security/` is reserved for password hashing, JWT helpers, and shared auth
-  checks.
-- `db/` is the database plumbing: engine, session factory, and metadata
-  exports.
-- `models/` contains the SQLAlchemy models that mirror the schema.
-- `repositories/` wraps query logic and write operations.
-- `schemas/` is for request and response models.
-- `services/` is where booking and availability use cases should go.
+Main package areas:
 
-The dependency flow is still simple:
+- `api/` defines routers, request/response schemas, and FastAPI dependencies.
+- `config/` loads runtime settings from environment variables.
+- `db/` owns the engine, session factory, and database bootstrap helpers.
+- `models/` contains SQLAlchemy ORM models.
+- `repositories/` contains database query and write helpers.
+- `security/` contains password hashing and JWT helpers.
+- `services/` contains business use cases and permission checks.
+
+The dependency flow is:
 
 `api -> services -> repositories -> db/models`
-
-`config/` and `security/` support the flow, but they are not a separate business
-layer.
