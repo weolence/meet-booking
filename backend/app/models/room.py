@@ -11,15 +11,15 @@ from app.models.mixins import IdMixin
 if TYPE_CHECKING:
     from app.models.room_slot import RoomSlot
 
-
-# Rooms only store the identifier used in booking flows.
 class Room(IdMixin, Base):
+    """Room model represents a physical room that can be booked for meetings or events."""
+
     __tablename__ = "rooms"
     __table_args__ = (
-        CheckConstraint("length(btrim(number)) > 0", name="rooms_number_not_blank"),
-        UniqueConstraint("number", name="uq_rooms_number"),
+        CheckConstraint("length(btrim(name)) > 0", name="rooms_name_not_blank"),
+        UniqueConstraint("name", name="uq_rooms_name"),
     )
 
-    number: Mapped[str] = mapped_column(String(32), nullable=False)
+    name: Mapped[str] = mapped_column(String(128), nullable=False)
 
     room_slots: Mapped[list["RoomSlot"]] = relationship(back_populates="room")

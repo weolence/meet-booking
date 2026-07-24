@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from uuid import UUID
-
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
@@ -10,19 +8,25 @@ from app.models.room_slot import RoomSlot
 from app.models.slot_template import SlotTemplate
 from app.repositories.base import BaseRepository
 
-
-# RoomRepository owns rooms and the room-slot links attached to them.
 class RoomRepository(BaseRepository):
-    def get_room_by_id(self, room_id: UUID) -> Room | None:
+    """RoomRepository owns rooms and the room-slot links attached to them."""
+
+    def get_room_by_id(self, room_id: int) -> Room | None:
+        """Get a room by its ID. Returns None if the room does not exist."""
+
         return self.session.get(Room, room_id)
 
-    def create_room(self, *, number: str) -> Room:
-        room = Room(number=number)
+    def create_room(self, *, name: str) -> Room:
+        """Creates a new room with the given name and returns the created Room object."""
+
+        room = Room(name=name)
         self.session.add(room)
         self.session.flush()
         return room
 
-    def remove_room(self, *, room_id: UUID) -> None:
+    def remove_room(self, *, room_id: int) -> None:
+        """Removes a room and all its associated room slots from the database."""
+
         room = self.get_room_by_id(room_id)
         if room is None:
             return
@@ -34,10 +38,14 @@ class RoomRepository(BaseRepository):
         self.session.flush()
 
     def list_rooms(self) -> list[Room]:
-        stmt = select(Room).order_by(Room.number.asc())
+        """Lists all rooms in the database, ordered by name."""
+
+        stmt = select(Room).order_by(Room.name.asc())
         return list(self.session.scalars(stmt))
 
-    def list_room_slots(self, *, room_id: UUID | None = None) -> list[RoomSlot]:
+    def list_room_slots(self, *, room_id: int | None = None) -> list[RoomSlot]:
+        """Lists all room slots, optionally filtered by room ID. Returns a list of RoomSlot objects."""
+
         stmt = (
             select(RoomSlot)
             .join(RoomSlot.room)
@@ -46,7 +54,11 @@ class RoomRepository(BaseRepository):
                 joinedload(RoomSlot.room),
                 joinedload(RoomSlot.slot_template),
             )
-            .order_by(Room.number.asc(), SlotTemplate.start_time.asc(), SlotTemplate.end_time.asc())
+            .order_by(
+                Room.name.asc(),
+                SlotTemplate.start_time.asc(),
+                SlotTemplate.end_time.asc(),
+            )
         )
 
         if room_id is not None:
@@ -54,7 +66,9 @@ class RoomRepository(BaseRepository):
 
         return list(self.session.scalars(stmt))
 
-    def get_room_slot_by_id(self, room_slot_id: UUID) -> RoomSlot | None:
+    def get_room_slot_by_id(self, room_slot_id: int) -> RoomSlot | None:
+        """Retrieves a room slot by its ID, including the associated room and slot template. Returns None if not found."""
+
         stmt = (
             select(RoomSlot)
             .options(
@@ -68,9 +82,11 @@ class RoomRepository(BaseRepository):
     def get_room_slot(
         self,
         *,
-        room_id: UUID,
-        slot_template_id: UUID,
+        room_id: int,
+        slot_template_id: int,
     ) -> RoomSlot | None:
+        """Retrieves a room slot by room ID and slot template ID, including the associated room and slot template. Returns None if not found."""
+
         stmt = (
             select(RoomSlot)
             .options(
@@ -84,7 +100,9 @@ class RoomRepository(BaseRepository):
         )
         return self.session.scalar(stmt)
 
-    def create_room_slot(self, *, room_id: UUID, slot_template_id: UUID) -> RoomSlot:
+    def create_room_slot(self, *, room_id: int, slot_template_id: int) -> RoomSlot:
+        """Creates a new room slot linking a room and a slot template, and returns the created RoomSlot object."""
+
         room_slot = RoomSlot(
             room_id=room_id,
             slot_template_id=slot_template_id,
@@ -93,7 +111,9 @@ class RoomRepository(BaseRepository):
         self.session.flush()
         return room_slot
 
-    def remove_room_slot(self, *, room_id: UUID, slot_template_id: UUID) -> None:
+    def remove_room_slot(self, *, room_id: int, slot_template_id: int) -> None:
+        """Removes a room slot by room ID and slot template ID. If the room slot does not exist, nothing happens."""
+
         room_slot = self.get_room_slot(
             room_id=room_id,
             slot_template_id=slot_template_id,

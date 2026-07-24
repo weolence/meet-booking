@@ -1,0 +1,17 @@
+from __future__ import annotations
+
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
+
+from app.api.dependencies import get_current_user
+from app.models.user import User
+from app.api.schemas.users import UserResponse
+
+
+router = APIRouter(prefix="/users", tags=["users"])
+
+
+@router.get("/me", response_model=UserResponse)
+def get_me(current_user: Annotated[User, Depends(get_current_user)]) -> UserResponse:
+    return UserResponse.from_user(current_user)

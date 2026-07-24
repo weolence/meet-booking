@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-from uuid import UUID
 
 import jwt
 from jwt import InvalidTokenError
@@ -16,13 +15,13 @@ ACCESS_TOKEN_TYPE = "access"
 
 @dataclass(frozen=True, slots=True)
 class AccessTokenPayload:
-    user_id: UUID
+    user_login: str
     expires_at: datetime
 
 
 def create_access_token(
     *,
-    user_id: UUID,
+    user_login: str,
     secret_key: str,
     algorithm: str,
     expires_delta: timedelta,
@@ -31,7 +30,7 @@ def create_access_token(
     issued_at = now or datetime.now(timezone.utc)
     expires_at = issued_at + expires_delta
     payload = {
-        "sub": str(user_id),
+        "sub": user_login,
         "type": ACCESS_TOKEN_TYPE,
         "iat": issued_at,
         "exp": expires_at,
@@ -69,12 +68,7 @@ def decode_access_token(
     if not isinstance(expires_at, int):
         raise InvalidAccessTokenError()
 
-    try:
-        user_id = UUID(subject)
-    except ValueError as exc:
-        raise InvalidAccessTokenError() from exc
-
     return AccessTokenPayload(
-        user_id=user_id,
+        user_login=subject,
         expires_at=datetime.fromtimestamp(expires_at, tz=timezone.utc),
     )

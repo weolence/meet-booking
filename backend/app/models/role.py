@@ -11,16 +11,17 @@ from app.models.mixins import IdMixin
 if TYPE_CHECKING:
     from app.models.user import User
 
-
-# Lookup table for allowed user roles.
-# It has a potential to be expanded in the future, more roles can be added.
 class Role(IdMixin, Base):
+    """Lookup table for allowed user roles.
+    It has a potential to be expanded in the future, more roles can be added.
+    """
+
     __tablename__ = "roles"
     __table_args__ = (
-        CheckConstraint("length(btrim(name)) > 0", name="roles_name_not_blank"),
-        UniqueConstraint("name", name="uq_roles_name"),
+        CheckConstraint("length(btrim(role)) > 0", name="roles_role_not_blank"),
+        UniqueConstraint("role", name="uq_roles_role"),
     )
 
-    name: Mapped[str] = mapped_column(String(64), nullable=False)
+    role: Mapped[str] = mapped_column(String(64), nullable=False)
 
     users: Mapped[list["User"]] = relationship(back_populates="role")

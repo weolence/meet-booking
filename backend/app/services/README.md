@@ -1,15 +1,29 @@
 # Services
 
+## AuthService
+
+`AuthService` is responsible for authentication-related use cases:
+
+- authenticate a user by login and password
+- register a new user with the default user role
+- create an access token for an authenticated user
+- logout a user by revoking the current access token
+
+It uses:
+
+- `UserRepository` for user and role reads and writes
+- `RevokedTokenRepository` to store revoked access tokens
+
 ## BookingService
 
 `BookingService` is responsible for booking-related use cases:
 
 - create a booking for an existing room slot and user
+- return or reactivate an existing booking for the same user, room slot, and date
 - reject duplicate active bookings for the same room slot and date
 - cancel a booking
 - enforce cancellation permissions:
-  employees can cancel their own bookings, admins can cancel any booking
-- validate cancellation timestamps against the booking creation time
+  users can cancel their own bookings, admins can cancel any booking
 
 It uses:
 
@@ -24,8 +38,8 @@ It uses:
 - list all rooms
 - create a room
 - remove a room
-- list taken room slots for a room and date
-- list available room slots for a room and date
+- list all room slots for a room
+- list room-slot availability for a room and date
 - change which slot templates are available for a room
 
 The room-slot update flow is implemented as synchronization:

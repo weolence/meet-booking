@@ -26,8 +26,11 @@ SessionLocal = sessionmaker(
     class_=Session,
 )
 
-
 def get_db_session() -> Generator[Session, None, None]:
+    """This function provides a database session that is automatically committed
+    or rolled back based on the success or failure of the request.
+    """
+
     session = SessionLocal()
     try:
         yield session

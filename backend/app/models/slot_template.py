@@ -12,9 +12,9 @@ from app.models.mixins import IdMixin
 if TYPE_CHECKING:
     from app.models.room_slot import RoomSlot
 
-
-# Fixed time ranges used by the booking grid.
 class SlotTemplate(IdMixin, Base):
+    """Fixed time ranges used by the booking grid."""
+
     __tablename__ = "slot_templates"
     __table_args__ = (
         CheckConstraint("end_time > start_time", name="slot_templates_time_range"),

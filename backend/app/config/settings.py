@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from functools import lru_cache
 import os
 
+from app.config.roles import DEFAULT_USER_ROLE_NAME
+
 
 def _env_bool(name: str, default: bool) -> bool:
     raw_value = os.getenv(name)
@@ -28,6 +30,9 @@ class Settings:
     db_echo: bool
     db_pool_size: int
     db_max_overflow: int
+    default_user_role_name: str
+    seed_admin_login: str
+    seed_admin_password: str
     jwt_secret_key: str
     jwt_algorithm: str
     jwt_access_token_expire_minutes: int
@@ -44,6 +49,9 @@ def get_settings() -> Settings:
         db_echo=_env_bool("DB_ECHO", False),
         db_pool_size=_env_int("DB_POOL_SIZE", 10),
         db_max_overflow=_env_int("DB_MAX_OVERFLOW", 20),
+        default_user_role_name=os.getenv("DEFAULT_USER_ROLE_NAME", DEFAULT_USER_ROLE_NAME),
+        seed_admin_login=os.getenv("SEED_ADMIN_LOGIN", "admin"),
+        seed_admin_password=os.getenv("SEED_ADMIN_PASSWORD", "admin"),
         jwt_secret_key=os.getenv(
             "JWT_SECRET_KEY",
             "H+?@mB3vfs}=}JW$p[-EU$r+N1Volh*h}gxnE%[*XH@",

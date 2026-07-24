@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime
-from uuid import UUID
+from datetime import date
 
 
 class ServiceError(Exception):
@@ -24,42 +23,38 @@ class PermissionDeniedError(ServiceError):
     """Raised when the current user cannot perform the requested action."""
 
 
-class InvalidRoomNumberError(ValidationError):
+class InvalidRoomNameError(ValidationError):
     def __init__(self) -> None:
-        super().__init__("Room number must not be blank.")
-
-
-class InvalidCancellationError(ValidationError):
-    def __init__(self, *, booking_id: UUID, cancelled_at: datetime, created_at: datetime) -> None:
-        super().__init__(
-            f"Booking {booking_id} cannot be cancelled at {cancelled_at.isoformat()} "
-            f"before it was created at {created_at.isoformat()}."
-        )
+        super().__init__("Room name must not be blank.")
 
 
 class RoomNotFoundError(NotFoundError):
-    def __init__(self, room_id: UUID) -> None:
+    def __init__(self, room_id: int) -> None:
         super().__init__(f"Room {room_id} was not found.")
 
 
 class RoomSlotNotFoundError(NotFoundError):
-    def __init__(self, room_slot_id: UUID) -> None:
+    def __init__(self, room_slot_id: int) -> None:
         super().__init__(f"Room slot {room_slot_id} was not found.")
 
 
 class SlotTemplateNotFoundError(NotFoundError):
-    def __init__(self, slot_template_id: UUID) -> None:
+    def __init__(self, slot_template_id: int) -> None:
         super().__init__(f"Slot template {slot_template_id} was not found.")
 
 
 class BookingNotFoundError(NotFoundError):
-    def __init__(self, booking_id: UUID) -> None:
-        super().__init__(f"Booking {booking_id} was not found.")
+    def __init__(self, *, user_login: str, room_slot_id: int, booking_date: date) -> None:
+        super().__init__(
+            "Booking "
+            f"(user_login={user_login}, room_slot_id={room_slot_id}, "
+            f"booking_date={booking_date.isoformat()}) was not found."
+        )
 
 
 class UserNotFoundError(NotFoundError):
-    def __init__(self, user_id: UUID) -> None:
-        super().__init__(f"User {user_id} was not found.")
+    def __init__(self, user_login: str) -> None:
+        super().__init__(f"User {user_login!r} was not found.")
 
 
 class InvalidCredentialsError(PermissionDeniedError):
@@ -67,30 +62,56 @@ class InvalidCredentialsError(PermissionDeniedError):
         super().__init__("Invalid login or password.")
 
 
+class InvalidLoginError(ValidationError):
+    def __init__(self) -> None:
+        super().__init__("Login must not be blank.")
+
+
+class InvalidPasswordError(ValidationError):
+    def __init__(self) -> None:
+        super().__init__("Password must not be blank.")
+
+
+class UserAlreadyExistsError(ConflictError):
+    def __init__(self, *, login: str) -> None:
+        super().__init__(f"User {login!r} already exists.")
+
+
 class RoomAlreadyExistsError(ConflictError):
-    def __init__(self, *, number: str) -> None:
-        super().__init__(f"Room {number!r} already exists.")
+    def __init__(self, *, name: str) -> None:
+        super().__init__(f"Room {name!r} already exists.")
 
 
 class BookingConflictError(ConflictError):
-    def __init__(self, *, room_slot_id: UUID, booking_date: date) -> None:
+    def __init__(self, *, room_slot_id: int, booking_date: date) -> None:
         super().__init__(
             f"Room slot {room_slot_id} is already booked on {booking_date.isoformat()}."
         )
 
 
 class RoomHasBookingsError(ConflictError):
-    def __init__(self, room_id: UUID) -> None:
+    def __init__(self, room_id: int) -> None:
         super().__init__(f"Room {room_id} cannot be removed because it has bookings.")
 
 
 class RoomSlotInUseError(ConflictError):
-    def __init__(self, room_id: UUID) -> None:
+    def __init__(self, room_id: int) -> None:
         super().__init__(
             f"Room {room_id} has room slots that cannot be removed because bookings exist for them."
         )
 
 
 class BookingPermissionDeniedError(PermissionDeniedError):
-    def __init__(self, *, booking_id: UUID, user_id: UUID) -> None:
-        super().__init__(f"User {user_id} cannot cancel booking {booking_id}.")
+    def __init__(
+        self,
+        *,
+        booking_user_login: str,
+        room_slot_id: int,
+        booking_date: date,
+        user_login: str,
+    ) -> None:
+        super().__init__(
+            f"User {user_login!r} cannot cancel booking "
+            f"(user_login={booking_user_login}, room_slot_id={room_slot_id}, "
+            f"booking_date={booking_date.isoformat()})."
+        )

@@ -4,10 +4,10 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
 
+from app.api.dependencies.repositories import get_revoked_token_repository, get_user_repository
+from app.config.roles import ADMIN_ROLE_NAME
 from app.config.settings import Settings, get_settings
-from app.db.session import get_db_session
 from app.models.user import User
 from app.repositories.revoked_token_repository import RevokedTokenRepository
 from app.repositories.user_repository import UserRepository
@@ -17,39 +17,9 @@ from app.security.tokens import (
     decode_access_token,
     hash_access_token,
 )
-from app.services.auth_service import AuthService
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-
-def get_user_repository(
-    session: Annotated[Session, Depends(get_db_session)],
-) -> UserRepository:
-    return UserRepository(session)
-
-
-def get_revoked_token_repository(
-    session: Annotated[Session, Depends(get_db_session)],
-) -> RevokedTokenRepository:
-    return RevokedTokenRepository(session)
-
-
-def get_auth_service(
-    user_repository: Annotated[UserRepository, Depends(get_user_repository)],
-    revoked_token_repository: Annotated[
-        RevokedTokenRepository,
-        Depends(get_revoked_token_repository),
-    ],
-    settings: Annotated[Settings, Depends(get_settings)],
-) -> AuthService:
-    return AuthService(
-        user_repository,
-        revoked_token_repository,
-        jwt_secret_key=settings.jwt_secret_key,
-        jwt_algorithm=settings.jwt_algorithm,
-        access_token_expire_minutes=settings.jwt_access_token_expire_minutes,
-    )
 
 
 def get_current_access_token_payload(
@@ -91,8 +61,20 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    user = user_repository.get_user_by_id(token_payload.user_id)
+    user = user_repository.get_user_by_login(token_payload.user_login)
     if user is None:
         raise credentials_exception
 
     return user
+
+
+def get_current_admin_user(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
+    if current_user.role.role != ADMIN_ROLE_NAME:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin role is required.",
+        )
+
+    return current_user
