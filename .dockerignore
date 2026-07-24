@@ -1,0 +1,7 @@
+.git
+.venv
+.pytest_cache
+.poetry-cache
+.postgres-data
+__pycache__
+*.pyc
