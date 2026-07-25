@@ -114,13 +114,12 @@ class BookingPermissionDeniedError(PermissionDeniedError):
     def __init__(
         self,
         *,
-        booking_user_login: str,
         room_slot_id: int,
         booking_date: date,
         user_login: str,
     ) -> None:
         super().__init__(
             f"User {user_login!r} cannot cancel booking "
-            f"(user_login={booking_user_login}, room_slot_id={room_slot_id}, "
+            f"room_slot_id={room_slot_id}, "
             f"booking_date={booking_date.isoformat()})."
         )

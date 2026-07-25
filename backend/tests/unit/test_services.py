@@ -299,12 +299,14 @@ def test_booking_service_blocks_user_from_cancelling_active_booking_by_slot_for_
         user_login=owner.login,
     )
 
-    with pytest.raises(BookingPermissionDeniedError):
+    with pytest.raises(BookingPermissionDeniedError) as exc_info:
         booking_service.cancel_active_booking_for_room_slot(
             room_slot_id=room_slot.id,
             booking_date=date(2026, 7, 16),
             cancelled_by_user_login=other_user.login,
         )
+
+    assert owner.login not in str(exc_info.value)
 
 
 def test_booking_service_reports_missing_active_booking_by_slot_and_date(
@@ -345,13 +347,15 @@ def test_booking_service_blocks_user_from_cancelling_another_users_booking(
         user_login=owner.login,
     )
 
-    with pytest.raises(BookingPermissionDeniedError):
+    with pytest.raises(BookingPermissionDeniedError) as exc_info:
         booking_service.cancel_booking(
             user_login=booking.user_login,
             room_slot_id=booking.room_slot_id,
             booking_date=booking.booking_date,
             cancelled_by_user_login=other_user.login,
         )
+
+    assert owner.login not in str(exc_info.value)
 
 
 def test_room_service_lists_rooms_in_sorted_order(session: Session) -> None:

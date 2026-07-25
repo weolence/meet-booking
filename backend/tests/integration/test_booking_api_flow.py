@@ -141,6 +141,7 @@ def test_booking_flow_covers_availability_conflict_permissions_and_admin_cancel(
         headers=second_user_headers,
     )
     assert forbidden_cancel_response.status_code == 403
+    assert "booker-1" not in forbidden_cancel_response.json()["detail"]
 
     admin_cancel_response = client.delete(
         f"/bookings/{first_slot['id']}",

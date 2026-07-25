@@ -133,7 +133,6 @@ class BookingService:
 
         if not self._can_cancel_booking(booking=booking, cancelled_by_user=cancelled_by_user):
             raise BookingPermissionDeniedError(
-                booking_user_login=user_login,
                 room_slot_id=room_slot_id,
                 booking_date=booking_date,
                 user_login=cancelled_by_user_login,
