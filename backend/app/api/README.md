@@ -60,12 +60,11 @@ Routes:
 - list bookings owned by the current user
 - create a booking for the current user
 - cancel a booking through `DELETE /bookings/{room_slot_id}`
-- allow admins to cancel another user's booking by passing `user_login`
+- allow admins to cancel another user's active booking by room slot and date
 
 Routes:
 
 - `GET /bookings/me` lists bookings owned by the current user.
 - `GET /bookings/me?booking_date=YYYY-MM-DD` lists the current user's bookings for one date.
 - `POST /bookings` creates a booking for the current user.
-- `DELETE /bookings/{room_slot_id}?booking_date=YYYY-MM-DD` cancels the current user's booking.
-- `DELETE /bookings/{room_slot_id}?booking_date=YYYY-MM-DD&user_login={login}` lets an admin cancel another user's booking.
+- `DELETE /bookings/{room_slot_id}?booking_date=YYYY-MM-DD` cancels the active booking for that slot and date.

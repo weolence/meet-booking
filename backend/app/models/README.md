@@ -8,8 +8,9 @@ The ORM layer:
 - `SlotTemplate`
 - `RoomSlot`
 - `Booking`
+- `RevokedToken`
 
-`Revoked Token` is a base for holding revoked token's hash, using it logging out can be implemented later.
+`RevokedToken` stores hashes of logged-out access tokens until they expire.
 
 `Role` picked out from `User` because this decision makes easier migration to base with broader set of roles.
 `SlotTemplate` is a base of slots, it allows removal of time duplicates in `RoomSlot` or `Booking`

@@ -54,12 +54,9 @@ def delete_booking(
     booking_date: Annotated[date, Query()],
     current_user: Annotated[User, Depends(get_current_user)],
     booking_service: Annotated[BookingService, Depends(get_booking_service)],
-    user_login: Annotated[str | None, Query()] = None,
 ) -> Response:
-    booking_user_login = user_login or current_user.login
     try:
-        booking_service.cancel_booking(
-            user_login=booking_user_login,
+        booking_service.cancel_active_booking_for_room_slot(
             room_slot_id=room_slot_id,
             booking_date=booking_date,
             cancelled_by_user_login=current_user.login,

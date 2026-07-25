@@ -1,6 +1,7 @@
 from app.services.auth_service import AuthService
 from app.services.booking_service import BookingService
 from app.services.errors import (
+    ActiveBookingNotFoundError,
     BookingConflictError,
     BookingNotFoundError,
     BookingPermissionDeniedError,
@@ -25,6 +26,7 @@ from app.services.errors import (
 from app.services.room_service import RoomService
 
 __all__ = [
+    "ActiveBookingNotFoundError",
     "AuthService",
     "BookingConflictError",
     "BookingNotFoundError",

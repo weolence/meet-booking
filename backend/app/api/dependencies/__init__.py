@@ -1,8 +1,9 @@
 from app.api.dependencies.auth import (
+    bearer_scheme,
+    get_bearer_token,
     get_current_access_token_payload,
     get_current_admin_user,
     get_current_user,
-    oauth2_scheme,
 )
 from app.api.dependencies.repositories import (
     get_booking_repository,
@@ -19,8 +20,10 @@ from app.api.dependencies.services import (
 
 __all__ = [
     "get_auth_service",
+    "bearer_scheme",
     "get_booking_repository",
     "get_booking_service",
+    "get_bearer_token",
     "get_current_access_token_payload",
     "get_current_admin_user",
     "get_current_user",
@@ -29,5 +32,4 @@ __all__ = [
     "get_room_service",
     "get_slot_template_repository",
     "get_user_repository",
-    "oauth2_scheme",
 ]

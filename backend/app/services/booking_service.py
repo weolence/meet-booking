@@ -11,6 +11,7 @@ from app.repositories.booking_repository import BookingRepository
 from app.repositories.room_repository import RoomRepository
 from app.repositories.user_repository import UserRepository
 from app.services.errors import (
+    ActiveBookingNotFoundError,
     BookingConflictError,
     BookingNotFoundError,
     BookingPermissionDeniedError,
@@ -70,6 +71,36 @@ class BookingService:
                 )
         except IntegrityError as exc:
             raise BookingConflictError(room_slot_id=room_slot_id, booking_date=booking_date) from exc
+
+    def cancel_active_booking_for_room_slot(
+        self,
+        *,
+        room_slot_id: int,
+        booking_date: date,
+        cancelled_by_user_login: str,
+    ) -> Booking:
+        """Cancels the active booking for a room slot and date.
+
+        Regular users can only cancel their own active booking. Admins can cancel
+        whichever active booking occupies the slot.
+        """
+
+        booking = self.booking_repository.get_active_booking_for_room_slot(
+            room_slot_id=room_slot_id,
+            booking_date=booking_date,
+        )
+        if booking is None:
+            raise ActiveBookingNotFoundError(
+                room_slot_id=room_slot_id,
+                booking_date=booking_date,
+            )
+
+        return self.cancel_booking(
+            user_login=booking.user_login,
+            room_slot_id=room_slot_id,
+            booking_date=booking_date,
+            cancelled_by_user_login=cancelled_by_user_login,
+        )
 
     def cancel_booking(
         self,

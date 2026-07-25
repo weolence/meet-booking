@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.api.dependencies import (
     get_auth_service,
+    get_bearer_token,
     get_current_access_token_payload,
     get_current_user,
-    oauth2_scheme,
 )
 from app.models.user import User
 from app.api.errors import service_error_to_http
@@ -60,7 +60,7 @@ def login(
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 def logout(
-    token: Annotated[str, Depends(oauth2_scheme)],
+    token: Annotated[str, Depends(get_bearer_token)],
     token_payload: Annotated[
         AccessTokenPayload,
         Depends(get_current_access_token_payload),

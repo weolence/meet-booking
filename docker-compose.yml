@@ -16,7 +16,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: docker/app/Dockerfile
+      dockerfile: Dockerfile
     environment:
       APP_NAME: meet-booking
       DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/meet_booking

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.api.dependencies.repositories import get_revoked_token_repository, get_user_repository
 from app.config.roles import ADMIN_ROLE_NAME
@@ -19,11 +19,24 @@ from app.security.tokens import (
 )
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+bearer_scheme = HTTPBearer(auto_error=False, scheme_name="BearerAuth")
+
+
+def get_bearer_token(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
+) -> str:
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return credentials.credentials
 
 
 def get_current_access_token_payload(
-    token: Annotated[str, Depends(oauth2_scheme)],
+    token: Annotated[str, Depends(get_bearer_token)],
     revoked_token_repository: Annotated[
         RevokedTokenRepository,
         Depends(get_revoked_token_repository),

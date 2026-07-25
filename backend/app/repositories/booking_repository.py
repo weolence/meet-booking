@@ -37,6 +37,28 @@ class BookingRepository(BaseRepository):
         )
         return self.session.scalar(stmt)
 
+    def get_active_booking_for_room_slot(
+        self,
+        *,
+        room_slot_id: int,
+        booking_date: date,
+    ) -> Booking | None:
+        """Gets the active booking for a room slot and date, regardless of owner."""
+
+        stmt = (
+            select(Booking)
+            .options(
+                joinedload(Booking.room_slot).joinedload(RoomSlot.room),
+                joinedload(Booking.room_slot).joinedload(RoomSlot.slot_template),
+            )
+            .where(
+                Booking.room_slot_id == room_slot_id,
+                Booking.booking_date == booking_date,
+                Booking.cancelled_by_user_login.is_(None),
+            )
+        )
+        return self.session.scalar(stmt)
+
     def list_active_bookings_for_date(self, *, room_id: int, booking_date: date) -> list[RoomSlot]:
         """Lists all active bookings for a given date and room."""
 

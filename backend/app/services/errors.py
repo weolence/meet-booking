@@ -52,6 +52,15 @@ class BookingNotFoundError(NotFoundError):
         )
 
 
+class ActiveBookingNotFoundError(NotFoundError):
+    def __init__(self, *, room_slot_id: int, booking_date: date) -> None:
+        super().__init__(
+            "Active booking "
+            f"(room_slot_id={room_slot_id}, booking_date={booking_date.isoformat()}) "
+            "was not found."
+        )
+
+
 class UserNotFoundError(NotFoundError):
     def __init__(self, user_login: str) -> None:
         super().__init__(f"User {user_login!r} was not found.")

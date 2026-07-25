@@ -16,6 +16,12 @@ class RoomRepository(BaseRepository):
 
         return self.session.get(Room, room_id)
 
+    def get_room_by_name(self, name: str) -> Room | None:
+        """Get a room by its name. Returns None if the room does not exist."""
+
+        stmt = select(Room).where(Room.name == name)
+        return self.session.scalar(stmt)
+
     def create_room(self, *, name: str) -> Room:
         """Creates a new room with the given name and returns the created Room object."""
 

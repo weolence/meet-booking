@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.config.roles import ADMIN_ROLE_NAME, SEEDED_ROLE_NAMES
 from app.config.settings import Settings
+from app.repositories.room_repository import RoomRepository
 from app.repositories.slot_template_repository import SlotTemplateRepository
 from app.repositories.user_repository import UserRepository
 from app.security.passwords import hash_password
@@ -22,16 +23,20 @@ DEFAULT_SLOT_TEMPLATE_RANGES = (
     (time(16, 0), time(17, 0)),
 )
 
+DEFAULT_ROOM_NAMES = ("101", "102", "103")
+
 def seed_database(session: Session, settings: Settings) -> None:
     """Seeds the database with initial data, including roles and an admin user."""
 
     user_repository = UserRepository(session)
+    room_repository = RoomRepository(session)
     slot_template_repository = SlotTemplateRepository(session)
     roles_by_name = {
         role_name: user_repository.get_or_create_role_by_name(role_name)
         for role_name in _role_names_to_seed(settings.default_user_role_name)
     }
     _seed_slot_templates(slot_template_repository)
+    _seed_rooms(room_repository, slot_template_repository)
 
     admin_login = settings.seed_admin_login.strip()
     if not admin_login:
@@ -79,3 +84,25 @@ def _seed_slot_templates(slot_template_repository: SlotTemplateRepository) -> No
                 start_time=start_time,
                 end_time=end_time,
             )
+
+
+def _seed_rooms(
+    room_repository: RoomRepository,
+    slot_template_repository: SlotTemplateRepository,
+) -> None:
+    slot_templates = slot_template_repository.list_slot_templates()
+    for room_name in DEFAULT_ROOM_NAMES:
+        room = room_repository.get_room_by_name(room_name)
+        if room is None:
+            room = room_repository.create_room(name=room_name)
+
+        for slot_template in slot_templates:
+            room_slot = room_repository.get_room_slot(
+                room_id=room.id,
+                slot_template_id=slot_template.id,
+            )
+            if room_slot is None:
+                room_repository.create_room_slot(
+                    room_id=room.id,
+                    slot_template_id=slot_template.id,
+                )
